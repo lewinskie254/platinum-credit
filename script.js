@@ -8,13 +8,27 @@ function showTab(tabName) {
 const netSalaryInput = document.getElementById("netSalary");
 const basicSalaryInput = document.getElementById("basicSalary");
 const retirementDateInput = document.getElementById("retirementDate");
-const eligMonthsInput = document.getElementById("eligibilityMonths");
+// const eligMonthsInput = document.getElementById("eligibilityMonths");
 
 const specAmountInput = document.getElementById("specificAmount");
 const specMonthsInput = document.getElementById("specificMonths");
 
 function numberWithCommas(x) {
     return Math.round(x).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+
+
+function monthsUntilRetirement(retirementValue) {
+    if (!retirementValue) return 1;
+
+    const today = new Date();
+    const retirement = new Date(retirementValue + "-01");
+
+    let months =
+        (retirement.getFullYear() - today.getFullYear()) * 12 +
+        (retirement.getMonth() - today.getMonth());
+
+    return Math.max(1, months);
 }
 
 function getInterestRate(months) {
@@ -54,21 +68,29 @@ function calculateEligibility() {
     // document.getElementById("totalRepayment").textContent = numberWithCommas(totalRepay);
 }
 
-function calculateRepayment() {
-    const principal = parseFloat(specAmountInput.value) || 0;
-    const n = parseInt(specMonthsInput.value) || 1;
+function calculateEligibility() {
+    const net = parseFloat(netSalaryInput.value) || 0;
+    const basic = parseFloat(basicSalaryInput.value) || 0;
+
+    const n = monthsUntilRetirement(retirementDateInput.value);
     const r = getInterestRate(n);
+
+    let maxInstallment = net - (basic / 3);
+    if (maxInstallment < 0) maxInstallment = 0;
+
+    const adjustedMonthly = maxInstallment - 240;
+
+    let principal = 0;
+    if (adjustedMonthly > 0) {
+        principal = adjustedMonthly / ((1 + (r * n)) / n);
+    }
 
     const appraisalFee = principal * 0.125;
     const financed = principal + appraisalFee;
-    const interestTotal = financed * r * n;
-    const totalPayable = financed + interestTotal;
-    const monthly = (totalPayable / n) + 240;
+    const totalRepay = financed + (financed * r * n);
 
-    document.getElementById("repMonthly").textContent = numberWithCommas(monthly);
-    document.getElementById("repRate").textContent = (r * 100).toFixed(2);
-    document.getElementById("repInterest").textContent = numberWithCommas(interestTotal);
-    document.getElementById("repTotal").textContent = numberWithCommas(totalPayable);
+    document.getElementById("maxMonthly").textContent = numberWithCommas(maxInstallment);
+    document.getElementById("loanAmount").textContent = numberWithCommas(principal);
 }
 
 function init() {
@@ -76,7 +98,7 @@ function init() {
     futureDate.setFullYear(futureDate.getFullYear() + 10);
     retirementDateInput.value = futureDate.toISOString().substring(0, 7);
 
-    [netSalaryInput, basicSalaryInput, retirementDateInput, eligMonthsInput].forEach(el => {
+    [netSalaryInput, basicSalaryInput, retirementDateInput].forEach(el => {
         el.addEventListener('input', calculateEligibility);
     });
 
