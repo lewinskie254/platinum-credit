@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loan Eligibility Calculator</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="loan-calculator">
+        <div class="section">
+            <h3>Net Salary (KES)</h3>
+            <input type="number" id="netSalary" value="8000">
+        </div>
+
+        <div class="section">
+            <h3>Basic Salary (KES)</h3>
+            <input type="number" id="basicSalary" value="30000">
+        </div>
+
+        <div class="section">
+            <h3>Retirement Month</h3>
+            <input type="month" id="retirementDate">
+        </div>
+
+        <div class="section slider-container">
+            <h3>Desired Repayment Period: <span id="sliderValue">0</span> Months</h3>
+            <input type="range" id="durationSlider" min="1" max="120" value="120" disabled>
+            <small class="help-text">Set retirement month first to unlock the slider.</small>
+        </div>
+
+        <div class="results">
+            <h2>Loan Eligibility</h2>
+
+            <div class="result-row">
+                Maximum Monthly Installment:
+                <strong>KES <span id="maxMonthly">0</span></strong>
+            </div>
+
+            <div class="result-row">
+                Selected Loan Duration:
+                <strong><span id="durationMonths">0</span> Months</strong>
+            </div>
+
+            <div class="result-row">
+                Interest Rate:
+                <strong><span id="interestRate">0</span>% / month</strong>
+            </div>
+
+            <div class="result-row">
+                Estimated Loan Amount:
+                <strong>KES <span id="loanAmount">0</span></strong>
+            </div>
+
+            <div class="result-row">
+                Total Repayment:
+                <strong>KES <span id="totalRepayment">0</span></strong>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
