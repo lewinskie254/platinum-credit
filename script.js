@@ -93,6 +93,24 @@ function calculateEligibility() {
     document.getElementById("loanAmount").textContent = numberWithCommas(principal);
 }
 
+function calculateRepayment() {
+    const principal = parseFloat(specAmountInput.value) || 0;
+    const n = parseInt(specMonthsInput.value) || 1;
+    const r = getInterestRate(n);
+
+    const appraisalFee = principal * 0.125;
+    const financed = principal + appraisalFee;
+
+    const interestTotal = financed * r * n;
+    const totalPayable = financed + interestTotal;
+
+    const monthly = totalPayable / n + 240;
+
+    document.getElementById("repMonthly").textContent = numberWithCommas(monthly);
+    document.getElementById("repRate").textContent = (r * 100).toFixed(2);
+    document.getElementById("repTotal").textContent = numberWithCommas(totalPayable);
+}
+
 function init() {
     const futureDate = new Date();
     futureDate.setFullYear(futureDate.getFullYear() + 10);
