@@ -1,146 +1,91 @@
+function showTab(tabName) {
+    document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+    document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+    document.getElementById(tabName + '-tab').classList.add('active');
+    event.currentTarget.classList.add('active');
+}
+
 const netSalaryInput = document.getElementById("netSalary");
 const basicSalaryInput = document.getElementById("basicSalary");
 const retirementDateInput = document.getElementById("retirementDate");
-const durationSlider = document.getElementById("durationSlider");
-const sliderValueDisplay = document.getElementById("sliderValue");
+const eligMonthsInput = document.getElementById("eligibilityMonths");
 
-const maxMonthlyDisplay = document.getElementById("maxMonthly");
-const durationMonthsDisplay = document.getElementById("durationMonths");
-const interestRateDisplay = document.getElementById("interestRate");
-const loanAmountDisplay = document.getElementById("loanAmount");
-const totalRepaymentDisplay = document.getElementById("totalRepayment");
-
-let maxAllowedMonths = 120; // Default fallback global max
+const specAmountInput = document.getElementById("specificAmount");
+const specMonthsInput = document.getElementById("specificMonths");
 
 function numberWithCommas(x) {
-  return Math.round(x)
-    .toString()
-    .replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    return Math.round(x).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
 
 function getInterestRate(months) {
-  if (months >= 108) return 0.0235;
-  if (months >= 84) return 0.025344;
-  if (months >= 72) return 0.024502;
-  if (months >= 60) return 0.027485;
-  if (months >= 40) return 0.028797;
-  if (months >= 36) return 0.036914;
-  if (months >= 24) return 0.044260;
-  if (months >= 12) return 0.052964;
-  if (months >= 6) return 0.053077;
-  return 0.058352;
+    if (months >= 108) return 0.0235;
+    else if (months >= 84) return 0.025344;
+    else if (months >= 72) return 0.024502;
+    else if (months >= 60) return 0.027485;
+    else if (months >= 40) return 0.028797;
+    else if (months >= 36) return 0.036914;
+    else if (months >= 24) return 0.044260;
+    else if (months >= 12) return 0.052964;
+    else if (months >= 6) return 0.053077;
+    else return 0.058352;
 }
 
-// 1. Logic handler for changes to the retirement date field
-function handleRetirementDateChange() {
-  const retirementDateValue = retirementDateInput.value;
+function calculateEligibility() {
+    const net = parseFloat(netSalaryInput.value) || 0;
+    const basic = parseFloat(basicSalaryInput.value) || 0;
+    const n = parseInt(eligMonthsInput.value) || 1;
+    const r = getInterestRate(n);
 
-  if (!retirementDateValue) {
-    durationSlider.disabled = true;
-    return;
-  }
+    let maxInstallment = net - (basic / 3);
+    if (maxInstallment < 0) maxInstallment = 0;
 
-  const today = new Date();
-  const retirementDate = new Date(retirementDateValue + "-01");
-
-  let calculatedMonths =
-    (retirementDate.getFullYear() - today.getFullYear()) * 12 +
-    (retirementDate.getMonth() - today.getMonth());
-
-  if (calculatedMonths < 1) calculatedMonths = 1;
-  if (calculatedMonths > 120) calculatedMonths = 120;
-
-  // Track the upper ceiling based strictly on retirement age
-  maxAllowedMonths = calculatedMonths;
-
-  // Update slider restrictions
-  durationSlider.max = maxAllowedMonths;
-  durationSlider.disabled = false;
-
-  // Keep slider synchronized if it exceeds the new retirement cap
-  if (parseInt(durationSlider.value) > maxAllowedMonths) {
-    durationSlider.value = maxAllowedMonths;
-    sliderValueDisplay.textContent = maxAllowedMonths;
-  }
-
-  calculateLoan();
-}
-
-// 2. Core math calculations 
-function calculateLoan() {
-  const netSalary = parseFloat(netSalaryInput.value) || 0;
-  const basicSalary = parseFloat(basicSalaryInput.value) || 0;
-
-  if (!retirementDateInput.value) {
-    return;
-  }
-
-  // Active duration targets what the user selected via the slider
-  const selectedMonths = parseInt(durationSlider.value) || 1;
-
-  // Formula: max monthly = net - basic/3
-  let maxMonthlyInstallment = netSalary - (basicSalary / 3);
-  
-  // Guard against negative installment limits
-  if (maxMonthlyInstallment < 0) {
-    maxMonthlyInstallment = 0;
-  }
-
-  const interestRate = getInterestRate(selectedMonths);
-
-  // Reverse engineer loan amount from installment
-  // monthly = ((principal + principal*r*n)/n)+240
-  const adjustedMonthly = maxMonthlyInstallment - 240;
-
-  let principal = 0;
-  let totalRepayment = 0;
-
-  // Only calculate if the installment covers the 240 base charge
-  if (adjustedMonthly > 0) {
-    principal =
-      adjustedMonthly /
-      ((1 + (interestRate * selectedMonths)) / selectedMonths);
+    const adjustedMonthly = maxInstallment - 240;
+    let principal = 0;
+    if (adjustedMonthly > 0) {
+        principal = adjustedMonthly / ((1 + (r * n)) / n);
+    }
 
     const appraisalFee = principal * 0.125;
-    const financedAmount = principal + appraisalFee;
+    const financed = principal + appraisalFee;
+    const totalRepay = financed + (financed * r * n);
 
-    const totalInterest = financedAmount * interestRate * selectedMonths;
-    totalRepayment = financedAmount + totalInterest;
-  }
-
-  // Double check to prevent fallback anomalies below 0
-  if (principal < 0) principal = 0;
-  if (totalRepayment < 0) totalRepayment = 0;
-
-  // Render to UI
-  maxMonthlyDisplay.textContent = numberWithCommas(maxMonthlyInstallment);
-  durationMonthsDisplay.textContent = selectedMonths;
-  interestRateDisplay.textContent = (interestRate * 100).toFixed(2);
-  loanAmountDisplay.textContent = numberWithCommas(principal);
-  totalRepaymentDisplay.textContent = numberWithCommas(totalRepayment);
+    document.getElementById("maxMonthly").textContent = numberWithCommas(maxInstallment);
+    document.getElementById("loanAmount").textContent = numberWithCommas(principal);
+    document.getElementById("totalRepayment").textContent = numberWithCommas(totalRepay);
 }
 
-// Helper to set a default date on initial load 
-function initDefaultDate() {
-  const futureDate = new Date();
-  futureDate.setFullYear(futureDate.getFullYear() + 10); 
-  
-  const year = futureDate.getFullYear();
-  const month = String(futureDate.getMonth() + 1).padStart(2, '0');
-  
-  retirementDateInput.value = `${year}-${month}`;
-  handleRetirementDateChange();
+function calculateRepayment() {
+    const principal = parseFloat(specAmountInput.value) || 0;
+    const n = parseInt(specMonthsInput.value) || 1;
+    const r = getInterestRate(n);
+
+    const appraisalFee = principal * 0.125;
+    const financed = principal + appraisalFee;
+    const interestTotal = financed * r * n;
+    const totalPayable = financed + interestTotal;
+    const monthly = (totalPayable / n) + 240;
+
+    document.getElementById("repMonthly").textContent = numberWithCommas(monthly);
+    document.getElementById("repRate").textContent = (r * 100).toFixed(2);
+    document.getElementById("repInterest").textContent = numberWithCommas(interestTotal);
+    document.getElementById("repTotal").textContent = numberWithCommas(totalPayable);
 }
 
-// Event Listeners
-netSalaryInput.addEventListener("input", calculateLoan);
-basicSalaryInput.addEventListener("input", calculateLoan);
-retirementDateInput.addEventListener("input", handleRetirementDateChange);
+function init() {
+    const futureDate = new Date();
+    futureDate.setFullYear(futureDate.getFullYear() + 10);
+    retirementDateInput.value = futureDate.toISOString().substring(0, 7);
 
-durationSlider.addEventListener("input", (e) => {
-  sliderValueDisplay.textContent = e.target.value;
-  calculateLoan();
-});
+    [netSalaryInput, basicSalaryInput, retirementDateInput, eligMonthsInput].forEach(el => {
+        el.addEventListener('input', calculateEligibility);
+    });
 
-// Initialization
-initDefaultDate();
+    [specAmountInput, specMonthsInput].forEach(el => {
+        el.addEventListener('input', calculateRepayment);
+    });
+
+    calculateEligibility();
+    calculateRepayment();
+}
+
+init();

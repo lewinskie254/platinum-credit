@@ -3,58 +3,58 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Loan Eligibility Calculator</title>
+    <title>Platinum Credit Calculator</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div id="loan-calculator">
-        <div class="section">
-            <h3>Net Salary (KES)</h3>
-            <input type="number" id="netSalary" value="8000">
-        </div>
+    <nav class="navbar">
+        <button class="nav-btn active" onclick="showTab('eligibility')">Loan Eligibility</button>
+        <button class="nav-btn" onclick="showTab('repayment')">Repayment Calculator</button>
+    </nav>
 
-        <div class="section">
-            <h3>Basic Salary (KES)</h3>
-            <input type="number" id="basicSalary" value="30000">
-        </div>
-
-        <div class="section">
-            <h3>Retirement Month</h3>
-            <input type="month" id="retirementDate">
-        </div>
-
-        <div class="section slider-container">
-            <h3>Desired Repayment Period: <span id="sliderValue">0</span> Months</h3>
-            <input type="range" id="durationSlider" min="1" max="120" value="120" disabled>
-            <small class="help-text">Set retirement month first to unlock the slider.</small>
-        </div>
-
-        <div class="results">
-            <h2>Loan Eligibility</h2>
-
-            <div class="result-row">
-                Maximum Monthly Installment:
-                <strong>KES <span id="maxMonthly">0</span></strong>
+    <div id="main-container">
+        <div id="eligibility-tab" class="tab-content active">
+            <div class="section">
+                <h3>Net Salary (KES)</h3>
+                <input type="number" id="netSalary" value="80000">
+            </div>
+            <div class="section">
+                <h3>Basic Salary (KES)</h3>
+                <input type="number" id="basicSalary" value="30000">
+            </div>
+            <div class="section">
+                <h3>Retirement Month</h3>
+                <input type="month" id="retirementDate">
+            </div>
+            <div class="section">
+                <h3>Loan Duration (Months)</h3>
+                <input type="number" id="eligibilityMonths" value="120" min="1" max="120">
             </div>
 
-            <div class="result-row">
-                Selected Loan Duration:
-                <strong><span id="durationMonths">0</span> Months</strong>
+            <div class="results">
+                <h2>Max Loan Results</h2>
+                <div class="result-row">Max Monthly Deduction: <strong>KES <span id="maxMonthly">0</span></strong></div>
+                <div class="result-row">Max Loan Principal: <strong>KES <span id="loanAmount">0</span></strong></div>
+                <div class="result-row">Total Repayment: <strong>KES <span id="totalRepayment">0</span></strong></div>
+            </div>
+        </div>
+
+        <div id="repayment-tab" class="tab-content">
+            <div class="section">
+                <h3>Desired Loan Amount (KES)</h3>
+                <input type="number" id="specificAmount" value="10000">
+            </div>
+            <div class="section">
+                <h3>Repayment Period (Months)</h3>
+                <input type="number" id="specificMonths" value="12" min="1" max="120">
             </div>
 
-            <div class="result-row">
-                Interest Rate:
-                <strong><span id="interestRate">0</span>% / month</strong>
-            </div>
-
-            <div class="result-row">
-                Estimated Loan Amount:
-                <strong>KES <span id="loanAmount">0</span></strong>
-            </div>
-
-            <div class="result-row">
-                Total Repayment:
-                <strong>KES <span id="totalRepayment">0</span></strong>
+            <div class="results repayment-results">
+                <h2>Repayment Breakdown</h2>
+                <div class="result-row">Monthly Installment: <strong>KES <span id="repMonthly">0</span></strong></div>
+                <div class="result-row">Interest Rate: <strong><span id="repRate">0</span>% / month</strong></div>
+                <div class="result-row">Total Interest: <strong>KES <span id="repInterest">0</span></strong></div>
+                <div class="result-row">Total to Pay: <strong>KES <span id="repTotal">0</span></strong></div>
             </div>
         </div>
     </div>
