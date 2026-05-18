@@ -51,7 +51,7 @@ function calculateEligibility() {
 
     document.getElementById("maxMonthly").textContent = numberWithCommas(maxInstallment);
     document.getElementById("loanAmount").textContent = numberWithCommas(principal);
-    document.getElementById("totalRepayment").textContent = numberWithCommas(totalRepay);
+    // document.getElementById("totalRepayment").textContent = numberWithCommas(totalRepay);
 }
 
 function calculateRepayment() {
