@@ -54,16 +54,26 @@ function getInterestRate(months) {
 
 // Eligibility
 function calculateEligibility() {
+
     const net = Number(netSalaryInput.value) || 0;
     const basic = Number(basicSalaryInput.value) || 0;
-    const months = monthsUntilRetirement(retirementDateInput.value);
+
+    let months = monthsUntilRetirement(retirementDateInput.value);
+
+    // Cap at 120 months
+    months = Math.min(months, 120);
+
     const rate = getInterestRate(months);
 
+    // Maximum allowed installment
     const maxInstallment = Math.max(0, net - (basic / 3));
+
+    // Remove fixed charges
     const adjusted = maxInstallment - 240;
 
+    // Reverse repayment formula
     const principal = adjusted > 0
-        ? adjusted / ((1 + (rate * months)) / months)
+        ? adjusted / (1.125 * ((1 / months) + rate))
         : 0;
 
     document.getElementById("maxMonthly").textContent =
@@ -73,7 +83,9 @@ function calculateEligibility() {
         Math.round(principal).toLocaleString();
 
     document.getElementById("eligibilityWarning").style.display =
-        (maxInstallment <= 0 || principal <= 0) ? "block" : "none";
+        (maxInstallment <= 0 || principal <= 0)
+            ? "block"
+            : "none";
 }
 
 // Repayment
